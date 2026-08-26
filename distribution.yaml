@@ -1,0 +1,34 @@
+name: tg-marketing
+version: 0.1.0
+description: "Отдел продаж в Telegram: userbot-движок (Telethon+asyncio+SQLite) парсит публичные чаты → AI ведёт диалоги → выносит горячие лиды. Агент-директор дирижирует флотом через leads-ops MCP."
+hermes_requires: ">=0.12.0"
+
+# No author-supplied secrets: accounts (Telethon sessions) and country-matched
+# proxies come from the platform market at runtime; the LLM key is injected by the
+# platform. → no env_requires.
+
+distribution_owned:
+  - SOUL.md
+  - skills/
+  - mcp.json
+
+# ── programs ── GATED (--with-programs). The engine's Python deps (Telethon +
+# asyncio + SQLite via SQLModel + the OpenAI-compatible client for the gateway).
+# node/npm ship in the image; the `run` step installs the leads-ops MCP server's
+# own dep (@modelcontextprotocol/sdk) inside the seeded engine.
+programs:
+  pip:
+    - "telethon==1.36.0"      # MTProto userbot client
+    - "PySocks==1.7.1"        # socks5 proxy support (country-matched IPs)
+    - "sqlmodel==0.0.22"      # SQLite control-plane models (engine's source of truth)
+    - "openai>=1.40"          # points at the AgentFlow LLM gateway (OpenAI-compatible)
+    - "python-dotenv>=1.0"
+  run: "cd workspace/engine/mcp && npm install --no-audit --no-fund --loglevel=error"
+
+# ── boilerplate ── seed the FULL self-contained engine (tgengine/ + cli/ + mcp/ +
+# pyproject.toml) into the workspace ONCE. The leads-ops MCP shells the cli/ scripts
+# against the engine's SQLite control-plane; the daemon runs the loops. Seeded only
+# if empty — the agent's live SQLite (accounts, campaigns, leads) is never clobbered.
+boilerplate:
+  - into: workspace/engine
+    dir: boilerplate/engine

@@ -1,0 +1,19 @@
+{
+  "mcp_servers": {
+    "leads-ops": {
+      "command": "node",
+      "args": ["${workspace}/engine/mcp/server.mjs"],
+      "cwd": "${workspace}/engine/mcp",
+      "env": {
+        "TGENGINE_DIR": "${workspace}/engine",
+        "PYTHON": "python3",
+        "LLM_BASE_URL": "${LLM_BASE_URL}",
+        "LLM_API_KEY": "${LLM_KEY}",
+        "LLM_MODEL": "${LLM_MODEL}",
+        "LLM_IMAGE_MODEL": "gpt-image-2"
+      },
+      "timeout": 900,
+      "connect_timeout": 60
+    }
+  }
+}
