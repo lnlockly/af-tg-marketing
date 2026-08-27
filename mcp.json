@@ -2,10 +2,10 @@
   "mcp_servers": {
     "leads-ops": {
       "command": "node",
-      "args": ["${workspace}/engine/mcp/server.mjs"],
-      "cwd": "${workspace}/engine/mcp",
+      "args": ["${hermesHome}/workspace/engine/mcp/server.mjs"],
+      "cwd": "${hermesHome}/workspace/engine/mcp",
       "env": {
-        "TGENGINE_DIR": "${workspace}/engine",
+        "TGENGINE_DIR": "${hermesHome}/workspace/engine",
         "PYTHON": "python3",
         "LLM_BASE_URL": "${LLM_BASE_URL}",
         "LLM_API_KEY": "${LLM_KEY}",
