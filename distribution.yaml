@@ -32,3 +32,31 @@ programs:
 boilerplate:
   - into: workspace/engine
     dir: boilerplate/engine
+
+# ── vitrine ── storefront card, synced to the CP catalog. Opaque to Hermes.
+vitrine:
+  title: Отдел продаж в Telegram
+  tagline: "Парсит чаты → AI ведёт диалоги → выносит горячие лиды прямо тебе."
+  icon: "📈"
+  category: marketing
+  tier: premium
+  price: 1500
+  model: gpt-5.5
+  resources: { memMb: 2048, cpus: 2 }
+  onboarding:
+    greeting: |
+      Привет! 📈 Я — твой отдел продаж в Telegram. Дай нишу и офер —
+      подключу аккаунты, найду и распарсю целевые чаты, поведу живые
+      AI-диалоги с потенциальными клиентами и буду выносить тебе горячие лиды.
+      Работаю аккуратно: без спама и обещаний того, чего нет.
+    can_do:
+      - "Парсинг публичных чатов по нише"
+      - "AI-диалоги с квалификацией лида"
+      - "Горячие лиды с карточкой и контекстом"
+      - "Флот аккаунтов + прокси под страну"
+    examples:
+      - "найди клиентов на курс английского, ниша — мамы в декрете"
+      - "настрой воронку: приветствие → квалификация → передача мне"
+  config:
+    - { key: niche,  label: Ниша / кого ищем, type: text }
+    - { key: offer,  label: Оффер,            type: text }
