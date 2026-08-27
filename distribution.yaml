@@ -1,5 +1,5 @@
 name: tg-marketing
-version: 0.1.0
+version: 0.1.1
 description: "Отдел продаж в Telegram: userbot-движок (Telethon+asyncio+SQLite) парсит публичные чаты → AI ведёт диалоги → выносит горячие лиды. Агент-директор дирижирует флотом через leads-ops MCP."
 hermes_requires: ">=0.12.0"
 
