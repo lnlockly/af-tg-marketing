@@ -41,7 +41,8 @@ vitrine:
   category: marketing
   tier: premium
   price: 1500
-  model: gpt-5.5
+  model: glm-5.3
+
   resources: { memMb: 2048, cpus: 2 }
   onboarding:
     greeting: |
