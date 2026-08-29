@@ -41,7 +41,7 @@ vitrine:
   category: marketing
   tier: premium
   price: 1500
-  model: glm-5.3
+  model: auto-cn
 
   resources: { memMb: 2048, cpus: 2 }
   onboarding:
