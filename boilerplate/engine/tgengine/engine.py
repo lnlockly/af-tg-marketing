@@ -743,24 +743,6 @@ def _fetch_warmup_accounts(limit: int = WARMUP_ACCOUNTS_PER_TICK) -> list[Accoun
         return [a for a in s.exec(stmt).all() if not account_on_cooldown(a)]
 
 
-def _warmup_peers(exclude_id: Optional[int]) -> list[Account]:
-    """Other active accounts that have a username — the internal-DM targets for
-    the internal_message warmup action. Detached rows (only .username/.id read)."""
-    with get_session() as s:
-        rows = list(
-            s.exec(
-                select(Account).where(
-                    Account.is_active == True,  # noqa: E712
-                    Account.username != None,  # noqa: E711
-                )
-            ).all()
-        )
-        peers = [a for a in rows if a.id != exclude_id]
-        for a in peers:
-            s.expunge(a)
-        return peers
-
-
 def _bump_warmup(account_id: int) -> tuple[int, WarmupPhase]:
     """Record one completed warmup action: increment warmup_actions, move a cold
     account to `warming`, and promote to `ready` once it clears ACTIONS_TO_READY.
@@ -783,9 +765,9 @@ async def warmup_loop() -> None:
     """FUNCTIONAL (Ф3). Walk cold/warming accounts through paced, human-looking
     warmup actions until phase == ready. Each tick: take accounts still warming
     (active, not on cooldown), and for each connect over its proxy, pick a
-    weighted action (warmup.pick_action) and run it (warmup.do_action) against the
-    neutral default channels — with the other warmup accounts as internal-DM
-    peers — then bump warmup_actions (cold→warming, →ready past ACTIONS_TO_READY).
+    weighted PASSIVE action (warmup.pick_action) and run it (warmup.do_action)
+    against the neutral default channels — join/view/react, NEVER a message — then
+    bump warmup_actions (cold→warming, →ready past ACTIONS_TO_READY).
     One action per account per tick; a jittered sleep by the intensity delay keeps
     it human. A classified AccountError cools the account down (or deactivates a
     dead/banned one). Ported from warmup-execution.service.ts processWarmupAccount."""
@@ -812,19 +794,17 @@ async def _warmup_pass() -> None:
 async def _warmup_one_account(account: Account, cfg: dict) -> None:
     """One account's single warmup action for this tick."""
     action = warmup.pick_action(account.warmup_actions, account.id or 0, WARMUP_INTENSITY)
-    peers = None
-    if action == "internal_message":
-        peers = await asyncio.to_thread(_warmup_peers, account.id)
-
     client = None
     try:
         proxy = await asyncio.to_thread(_load_proxy, account.proxy_id)
         client = await tgclient.connect(account, proxy)
+        # 🔴 warmup is PASSIVE: self_check / channel_join / channel_view / react only.
+        # It NEVER sends a message (no internal DM, no self-ping) — initiating a DM is
+        # the fastest way a fresh account gets flagged.
         detail = await warmup.do_action(
             client,
             action,
             channels=warmup.DEFAULT_WARMUP_CHANNELS,
-            peers=peers,
         )
         count, phase = await asyncio.to_thread(_bump_warmup, account.id)
         log.info(

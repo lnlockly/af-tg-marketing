@@ -162,10 +162,11 @@ VERY IMPORTANT part (owner). Spec source: leads42 `src/telegram/telegram-profile
   - `DEFAULT_WARMUP_CHANNELS = [...]` — ~10 neutral popular PUBLIC channels (e.g. telegram, durov, tginfo…)
     to view/join. `ACTIONS_TO_READY = 25` (promote past this).
   - `def pick_action(actions_count, account_id, intensity="medium") -> str` — weighted selector
-    (self_check|channel_view|channel_join|internal_message), ported from the cumulative-weight selector.
+    over PASSIVE actions only (self_check|channel_view|channel_join|react). 🔴 Warmup NEVER messages.
   - `async def do_action(client, action, *, channels, peers=None) -> str` — channel_view =
     `iter_messages(channel, limit≈15)`; channel_join = `Api.channels.JoinChannelRequest` (cap handled by
-    caller/day); self_check = `get_me`; internal_message = SendMessage to a `peers` account (skip if none).
+    caller/day); self_check = `get_me`; react = one positive `SendReactionRequest` on a recent post
+    (skip if the channel disallows it). `peers` is accepted for back-compat and IGNORED — no DMs.
     Tolerate FLOOD_WAIT → AccountError.
 - `tgengine/engine.py` `warmup_loop` (replace the STUB, touch NOTHING else): for accounts with
   `warmup_phase` in (cold, warming) and not on cooldown, in a gentle paced tick: connect via proxy →
